@@ -65,3 +65,35 @@ UPDATE nashville.dbo.housing
 SET SoldAsVacant = CASE WHEN SoldAsVacant = 'Y' then 'Yes'
 			When SoldAsVacant = 'N' THEN 'NO'
 			End
+--- Removeing Duplicates 
+
+WITH RowNumCTE AS(
+Select *,
+	Row_Number() OVER(
+	Partition BY ParcelID,
+				PropertyAddress, 
+				SalePrice, 
+				SaleDate,
+				LegalReference
+				ORDER BY 
+				UNIQUEID
+				)
+
+
+FROM nashville.dbo.housing 
+--order by ParcelID 
+)
+DELETE 
+FROM RowNumCTE
+WHERE row_num >1
+Order by PropertyAddress 
+
+--Deleting Unused Columns 
+Select * 
+FROM nashville.dbo.housing 
+Alter Table  nashville.dbo.housing 
+Drop Column OwnerAddress, TaxDistrict, Propertyaddress 
+Select * 
+FROM nashville.dbo.housing
+Alter Table  nashville.dbo.housing 
+Drop Column SaleDate
