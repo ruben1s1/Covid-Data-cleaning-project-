@@ -1,0 +1,67 @@
+---Alter and update cannot be run, continues to say "housing" does not exsit or no permissions 
+select * 
+from nashville.dbo.housing 
+
+-- Date formated as standarized 
+
+
+Alter Table  housing 
+Add Saledateconverted Date; 
+
+
+--- Property adress, filling null values 
+
+Select *
+FROM nashville.dbo.housing 
+--where PropertyAddress is null 
+order by ParcelID
+
+---
+Select a.ParcelID, a.PropertyAddress, b.ParcelID, b.PropertyAddress, ISNULL(a.PropertyAddress,b.PropertyAddress) 
+FROM nashville.dbo.housing a
+Join nashville.dbo.housing b
+on a.ParcelID = b.ParcelID
+and a.[UniqueID ] <> b.[UniqueID ]
+Where a.PropertyAddress is null 
+
+update a
+SET PropertyAddress = ISNULL(a.PropertyAddress,b.PropertyAddress) 
+FROM nashville.dbo.housing a
+Join nashville.dbo.housing b
+on a.ParcelID = b.ParcelID
+and a.[UniqueID ] <> b.[UniqueID ]
+Where a.PropertyAddress is null 
+
+--- Breaking out Address into Individual Columens (address, city, state) 
+Select *
+FROM nashville.dbo.housing 
+--where PropertyAddress is null 
+--order by ParcelID
+--(-1)=deletes one character from the end 
+SELECT 
+SUBSTRING(PropertyAddress, 1, CHARINDEX(',',PropertyAddress)-1) as address 
+,SUBSTRING(PropertyAddress, CHARINDEX(',',PropertyAddress)+1, LEN (PropertyAddress)) as address 
+FROM nashville.dbo.housing 
+
+Alter Table housing 
+add propertysplitaddress Nvarchar(255)
+Update housing 
+SET PropertySplitAddress = SUBSTRING(PropertyAddress, 1, CHARINDEX(',', PropertyAddress) -1 )
+
+-- Change y and N to yes and no in sold as vacant 
+	-- shows the count of yes, no, n and y 
+Select distinct (SoldAsVacant), COUNT(SoldAsVacant) 
+FROM nashville.dbo.housing
+Group by SoldAsVacant 
+order by 2 
+
+Select soldasvacant 
+, CASE WHEN SoldAsVacant = 'Y' then 'Yes'
+			When SoldAsVacant = 'N' THEN 'NO'
+			END
+FROM nashville.dbo.housing
+
+UPDATE nashville.dbo.housing
+SET SoldAsVacant = CASE WHEN SoldAsVacant = 'Y' then 'Yes'
+			When SoldAsVacant = 'N' THEN 'NO'
+			End
