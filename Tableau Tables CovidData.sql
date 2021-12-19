@@ -70,8 +70,7 @@ order by PercentPopulationInfected desc
 
 
 
--- Queries I originally had, but excluded 
--- Here only in case you want to check them out
+-- excluded 
 
 
 -- 1.
